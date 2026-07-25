@@ -142,6 +142,17 @@ function getStoredAuthState() {
   }
 }
 
+function getStoredUser(): UserProfile {
+  if (typeof window === "undefined") return defaultUser;
+
+  try {
+    const stored = window.localStorage.getItem("ph_user");
+    return stored ? JSON.parse(stored) : defaultUser;
+  } catch {
+    return defaultUser;
+  }
+}
+
 function getStoredTasks() {
   if (typeof window === "undefined") return [];
 
@@ -155,7 +166,7 @@ function getStoredTasks() {
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [isAuthed, setIsAuthed] = useState(getStoredAuthState);
-  const [user, setUser] = useState<UserProfile>(defaultUser);
+  const [user, setUser] = useState<UserProfile>(getStoredUser);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [tasks, setTasks] = useState<Task[]>(getStoredTasks());
@@ -190,12 +201,65 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     void loadProgressLogs();
   }, []);
 
+  // Validate and refresh token on mount
+  useEffect(() => {
+    const validateAndRefreshAuth = async () => {
+      const token = localStorage.getItem("ph_token");
+      if (!token) {
+        setIsAuthed(false);
+        setUser(defaultUser);
+        return;
+      }
+
+      try {
+        // Try to refresh the token using the refresh endpoint
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/refresh-token`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const newToken = data.accessToken;
+          localStorage.setItem('ph_token', newToken);
+          localStorage.setItem('ph_auth', '1');
+          // Keep user logged in and reload their data
+        } else if (response.status === 401) {
+          // Explicit 401 - token is invalid, clear auth state
+          setIsAuthed(false);
+          setUser(defaultUser);
+          localStorage.removeItem("ph_token");
+          localStorage.setItem("ph_auth", "0");
+          localStorage.removeItem("ph_user");
+        } else {
+          // Other errors (500, network, etc.) - keep auth state, will retry on next API call
+          console.log("Token refresh failed with non-401 status, keeping auth state:", response.status);
+        }
+      } catch (error) {
+        // Network error - don't clear auth, just let it be
+        // The user might still be valid, we'll find out on the next API call
+        console.log("Token refresh failed due to network error, keeping auth state:", error);
+      }
+    };
+
+    if (isAuthed) {
+      validateAndRefreshAuth();
+    }
+  }, []);
+
   // Persist tasks to localStorage whenever they change
   useEffect(() => {
     try {
       localStorage.setItem("ph_tasks", JSON.stringify(tasks));
     } catch {}
   }, [tasks]);
+
+  // Persist user to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("ph_user", JSON.stringify(user));
+    } catch {}
+  }, [user]);
 
   const activity = (message: string, actionType = "general") => {
     setActivities((prev) => [
@@ -231,23 +295,30 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
         const response = await loginUser(email, password);
 
+        const updatedUser = {
+          email: response.user.email || defaultUser.email,
+          name: response.user.username || defaultUser.name,
+          focusArea: defaultUser.focusArea,
+          bio: defaultUser.bio,
+          joined: defaultUser.joined,
+        };
+
         setIsAuthed(true);
-        setUser((u) => ({
-          ...u,
-          email: response.user.email || u.email,
-          name: response.user.username || u.name,
-        }));
+        setUser(updatedUser);
 
         try {
           localStorage.setItem("ph_auth", "1");
           localStorage.setItem("ph_token", response.accessToken);
+          localStorage.setItem("ph_user", JSON.stringify(updatedUser));
         } catch {}
       },
       signOut: () => {
         setIsAuthed(false);
+        setUser(defaultUser);
         try {
           localStorage.setItem("ph_auth", "0");
           localStorage.removeItem("ph_token");
+          localStorage.removeItem("ph_user");
         } catch {}
       },
       loadGoals: async () => {
