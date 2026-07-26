@@ -1,4 +1,10 @@
 {
   "buildCommand": "npm run build",
-  "framework": "tanstack-start"
+  "outputDirectory": "dist",
+  "framework": "tanstack-start",
+  "functions": {
+    "dist/server/server.js": {
+      "includeFiles": ["dist/**"]
+    }
+  }
 }
