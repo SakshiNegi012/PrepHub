@@ -1,4 +1,4 @@
-import "./lib/error-capture";
+/* import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -59,3 +59,9 @@ export default {
     }
   },
 };
+ */
+
+
+import { createStartHandler, defaultStreamHandler } from "@tanstack/react-start/server";
+
+export default createStartHandler(defaultStreamHandler);
