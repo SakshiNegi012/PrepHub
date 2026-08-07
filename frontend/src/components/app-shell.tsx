@@ -1,4 +1,4 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function getStreakDays(progressLogs: Array<{ date: string }>) {
   const uniqueDays = new Set(
@@ -61,7 +61,7 @@ const primaryNav = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { pathname } = useLocation();
   const store = useAppStore();
   const ui = useAppUi();
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const handleSignOut = () => {
     store.signOut();
-    navigate({ to: "/auth" });
+    navigate("/auth");
   };
 
   return (
@@ -113,10 +113,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuLabel>{store.user.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate({ to: "/profile" })}>
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
               <User className="size-4" /> Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
               <Settings className="size-4" /> Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />

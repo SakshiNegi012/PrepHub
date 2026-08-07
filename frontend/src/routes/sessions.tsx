@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { Play, Plus } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useAppStore } from "@/lib/app-store";
 import { useAppUi } from "@/components/prep/app-controller";
 
-export const Route = createFileRoute("/sessions")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Sessions — PrepHub" },
@@ -14,7 +13,8 @@ export const Route = createFileRoute("/sessions")({
   component: SessionsPage,
 });
 
-function SessionsPage() {
+*/
+export default function SessionsPage() {
   const store = useAppStore();
   const ui = useAppUi();
 

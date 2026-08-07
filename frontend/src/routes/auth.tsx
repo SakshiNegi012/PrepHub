@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { useAppStore } from "@/lib/app-store";
 import { notifyError, notifyInfo, notifySuccess } from "@/lib/notifications";
 import { registerUser, verifyEmailApi } from "@/lib/api";
 
-export const Route = createFileRoute("/auth")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Sign in — PrepHub" },
@@ -14,9 +14,10 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+*/
 type Mode = "login" | "register" | "otp" | "forgot" | "reset";
 
-function AuthPage() {
+export default function AuthPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -38,7 +39,7 @@ function AuthPage() {
       try {
         await store.signIn(email, password);
         notifySuccess("Welcome back", "You’re signed in and ready to continue.");
-        navigate({ to: "/" });
+        navigate("/");
       } catch (error) {
         notifyError(
           "Sign-in failed",
@@ -173,7 +174,7 @@ function AuthPage() {
                     await verifyEmailApi(email, code);
                     await store.signIn(email, password);
                     notifySuccess("Account created", "Your PrepHub account is ready.");
-                    navigate({ to: "/" });
+                    navigate("/");
                   } catch (error) {
                     notifyError(
                       "Verification failed",

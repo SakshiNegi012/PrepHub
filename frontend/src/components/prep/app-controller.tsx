@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
 import {
@@ -794,23 +794,23 @@ function SearchPalette({
       <CommandList>
         <CommandEmpty>No results.</CommandEmpty>
         <CommandGroup heading="Jump to">
-          <CommandItem onSelect={() => go(() => navigate({ to: "/" }))}>Home</CommandItem>
-          <CommandItem onSelect={() => go(() => navigate({ to: "/goals" }))}>Goals</CommandItem>
-          <CommandItem onSelect={() => go(() => navigate({ to: "/tasks" }))}>Tasks</CommandItem>
-          <CommandItem onSelect={() => go(() => navigate({ to: "/resources" }))}>
+          <CommandItem onSelect={() => go(() => navigate("/"))}>Home</CommandItem>
+          <CommandItem onSelect={() => go(() => navigate("/goals"))}>Goals</CommandItem>
+          <CommandItem onSelect={() => go(() => navigate("/tasks"))}>Tasks</CommandItem>
+          <CommandItem onSelect={() => go(() => navigate("/resources"))}>
             Resources
           </CommandItem>
-          <CommandItem onSelect={() => go(() => navigate({ to: "/sessions" }))}>
+          <CommandItem onSelect={() => go(() => navigate("/sessions"))}>
             Sessions
           </CommandItem>
-          <CommandItem onSelect={() => go(() => navigate({ to: "/journey" }))}>Journey</CommandItem>
+          <CommandItem onSelect={() => go(() => navigate("/journey"))}>Journey</CommandItem>
         </CommandGroup>
         <CommandGroup heading="Goals">
           {store.goals.map((g) => (
             <CommandItem
               key={g._id}
               onSelect={() =>
-                go(() => navigate({ to: "/goals/$goalId", params: { goalId: g._id } }))
+                go(() => navigate(`/goals/${g._id}`))
               }
             >
               <Target className="size-4" /> {g.title}
@@ -819,14 +819,14 @@ function SearchPalette({
         </CommandGroup>
         <CommandGroup heading="Tasks">
           {store.tasks.slice(0, 15).map((t) => (
-            <CommandItem key={t._id} onSelect={() => go(() => navigate({ to: "/tasks" }))}>
+            <CommandItem key={t._id} onSelect={() => go(() => navigate("/tasks"))}>
               <ListChecks className="size-4" /> {t.title}
             </CommandItem>
           ))}
         </CommandGroup>
         <CommandGroup heading="Resources">
           {store.resources.slice(0, 15).map((r) => (
-            <CommandItem key={r._id} onSelect={() => go(() => navigate({ to: "/resources" }))}>
+            <CommandItem key={r._id} onSelect={() => go(() => navigate("/resources"))}>
               <BookOpen className="size-4" /> {r.title}
             </CommandItem>
           ))}

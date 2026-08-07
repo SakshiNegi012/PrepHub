@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, MoreHorizontal, Pencil, Trash2, Clock, Search } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
@@ -12,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Route = createFileRoute("/tasks")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Tasks — PrepHub" },
@@ -22,9 +21,10 @@ export const Route = createFileRoute("/tasks")({
   component: TasksPage,
 });
 
+*/
 type Tab = "all" | "todo" | "in_progress" | "completed";
 
-function TasksPage() {
+export default function TasksPage() {
   const store = useAppStore();
   const ui = useAppUi();
   const [tab, setTab] = useState<Tab>("all");

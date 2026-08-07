@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AppShell, PageHeader, SectionLabel } from "@/components/app-shell";
 import { useAppStore } from "@/lib/app-store";
 import { useAppUi } from "@/components/prep/app-controller";
 import { notifyError, notifySuccess } from "@/lib/notifications";
 
-export const Route = createFileRoute("/settings")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Settings — PrepHub" },
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
+*/
 function Row({
   label,
   description,
@@ -54,7 +55,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
   );
 }
 
-function SettingsPage() {
+export default function SettingsPage() {
   const store = useAppStore();
   const ui = useAppUi();
   const navigate = useNavigate();
@@ -224,7 +225,7 @@ function SettingsPage() {
                         "Account deleted",
                         "Your account has been removed from PrepHub.",
                       );
-                      navigate({ to: "/auth" });
+    navigate("/auth");
                     },
                   })
                 }
@@ -237,7 +238,7 @@ function SettingsPage() {
               <button
                 onClick={() => {
                   store.signOut();
-                  navigate({ to: "/auth" });
+                  navigate("/auth");
                 }}
                 className="text-sm text-destructive hover:opacity-80"
               >

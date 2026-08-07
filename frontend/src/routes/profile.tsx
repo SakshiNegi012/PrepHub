@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 
 function getStreakDays(progressLogs: Array<{ date: string }>) {
   const uniqueDays = new Set(
@@ -27,7 +26,7 @@ import { useAppStore } from "@/lib/app-store";
 import { notifySuccess } from "@/lib/notifications";
 import { Pencil } from "lucide-react";
 
-export const Route = createFileRoute("/profile")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Profile — PrepHub" },
@@ -37,7 +36,8 @@ export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
-function ProfilePage() {
+*/
+export default function ProfilePage() {
   const store = useAppStore();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(store.user.name);

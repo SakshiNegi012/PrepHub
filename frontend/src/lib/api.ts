@@ -1,4 +1,7 @@
+import axios, { AxiosError, type AxiosRequestConfig } from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiClient = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
 
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
@@ -14,16 +17,7 @@ function onTokenRefreshed(token: string) {
 
 async function refreshAccessToken(): Promise<string> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('Token refresh failed');
-    }
-
-    const data = await response.json();
+    const { data } = await apiClient.post<{ accessToken: string }>("/api/auth/refresh-token");
     const newToken = data.accessToken;
     
     localStorage.setItem('ph_token', newToken);
@@ -37,18 +31,18 @@ async function refreshAccessToken(): Promise<string> {
   }
 }
 
-function getErrorMessage(response: Response, data: Record<string, unknown>): string {
-  if (response.status === 401) {
+function getErrorMessage(status: number, data: Record<string, unknown>): string {
+  if (status === 401) {
     return "Authentication required. Please sign in to continue.";
   }
 
-  if (response.status === 400) {
+  if (status === 400) {
     return typeof data.message === "string" && data.message.trim()
       ? data.message
       : "Please fill in all required fields.";
   }
 
-  if (response.status === 404) {
+  if (status === 404) {
     return typeof data.message === "string" && data.message.trim()
       ? data.message
       : "The requested item could not be found.";
@@ -60,7 +54,7 @@ function getErrorMessage(response: Response, data: Record<string, unknown>): str
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  let token = localStorage.getItem("ph_token");
+  const token = localStorage.getItem("ph_token");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string> | undefined),
@@ -70,30 +64,27 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    credentials: 'include',
+  const config: AxiosRequestConfig = {
+    url: path,
+    method: options.method,
     headers,
-  });
+    data: typeof options.body === "string" ? JSON.parse(options.body) : options.body,
+  };
 
-  const data = await response.json().catch(() => ({}));
+  try {
+    return (await apiClient.request<T>(config)).data;
+  } catch (caught) {
+    const error = caught as AxiosError<Record<string, unknown>>;
+    if (error.response?.status !== 401 || path.includes("/auth/")) {
+      throw new Error(getErrorMessage(error.response?.status ?? 0, error.response?.data ?? {}));
+    }
 
-  // Handle 401 - try to refresh token
-  if (response.status === 401 && !path.includes('/auth/')) {
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         subscribeTokenRefresh((newToken: string) => {
-          const headersWithNewToken = {
-            ...headers,
-            Authorization: `Bearer ${newToken}`,
-          };
-          fetch(`${API_BASE_URL}${path}`, {
-            ...options,
-            credentials: 'include',
-            headers: headersWithNewToken,
-          })
-            .then(res => res.json().catch(() => ({})))
-            .then(result => resolve(result as T))
+          apiClient
+            .request<T>({ ...config, headers: { ...headers, Authorization: `Bearer ${newToken}` } })
+            .then((response) => resolve(response.data))
             .catch(reject);
         });
       });
@@ -104,38 +95,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       const newToken = await refreshAccessToken();
       onTokenRefreshed(newToken);
       
-      // Retry original request with new token
-      const headersWithNewToken = {
-        ...headers,
-        Authorization: `Bearer ${newToken}`,
-      };
-      
-      const retryResponse = await fetch(`${API_BASE_URL}${path}`, {
-        ...options,
-        credentials: 'include',
-        headers: headersWithNewToken,
-      });
-      
-      const retryData = await retryResponse.json().catch(() => ({}));
-      
-      if (!retryResponse.ok) {
-        throw new Error(getErrorMessage(retryResponse, retryData));
-      }
-      
-      return retryData as T;
-    } catch (error) {
+      return (await apiClient.request<T>({
+        ...config,
+        headers: { ...headers, Authorization: `Bearer ${newToken}` },
+      })).data;
+    } catch {
       isRefreshing = false;
       throw new Error('Session expired. Please sign in again.');
     } finally {
       isRefreshing = false;
     }
   }
-
-  if (!response.ok) {
-    throw new Error(getErrorMessage(response, data));
-  }
-
-  return data as T;
 }
 
 export async function loginUser(email: string, password: string) {

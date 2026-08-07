@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Route = createFileRoute("/goals")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Goals — PrepHub" },
@@ -26,13 +26,14 @@ export const Route = createFileRoute("/goals")({
   component: GoalsPage,
 });
 
+*/
 const statusTone: Record<string, string> = {
   active: "bg-sage text-forest",
   paused: "bg-peach text-peach-ink",
   completed: "bg-sky text-sky-ink",
 };
 
-function GoalsPage() {
+export default function GoalsPage() {
   const store = useAppStore();
   const ui = useAppUi();
 
@@ -133,7 +134,7 @@ function GoalCard({ goal: g }: { goal: Goal }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Link to="/goals/$goalId" params={{ goalId: g._id }} className="block">
+      <Link to={`/goals/${g._id}`} className="block">
         <div className="flex items-start justify-between gap-3 pr-8">
           <div className="min-w-0">
             <span

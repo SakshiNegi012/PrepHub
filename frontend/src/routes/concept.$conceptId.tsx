@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { Star, ExternalLink, Plus, Clock } from "lucide-react";
 import { AppShell, SectionLabel } from "@/components/app-shell";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 import type { Concept } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/concept/$conceptId")({
+/* Route metadata is now supplied by index.html.
   loader: ({ params }): { concept: Concept } => {
     const concept = getConceptById(params.conceptId);
     if (!concept) throw notFound();
@@ -19,11 +19,14 @@ export const Route = createFileRoute("/concept/$conceptId")({
   component: ConceptWorkspace,
 });
 
+*/
 const TABS = ["Resources", "Notes", "Tasks"] as const;
 type Tab = (typeof TABS)[number];
 
-function ConceptWorkspace() {
-  const { concept } = Route.useLoaderData();
+export default function ConceptWorkspace() {
+  const { conceptId } = useParams<{ conceptId: string }>();
+  const concept = conceptId ? getConceptById(conceptId) : undefined;
+  if (!concept) return <AppShell><div className="max-w-5xl mx-auto px-6 md:px-12 py-10">Concept not found.</div></AppShell>;
   const [tab, setTab] = useState<Tab>("Resources");
 
   return (
@@ -33,8 +36,7 @@ function ConceptWorkspace() {
           <Link to="/goals" className="hover:text-ink">Goals</Link>
           <span className="mx-2 opacity-40">/</span>
           <Link
-            to="/goals/$goalId"
-            params={{ goalId: concept.goalId }}
+            to={`/goals/${concept.goalId}`}
             className="hover:text-ink"
           >
             {concept.goalTitle}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { Link, useParams } from "react-router-dom";
 import { ChevronRight, Pencil, Trash2, Plus, Play, ListChecks } from "lucide-react";
 import { AppShell, PageHeader, SectionLabel } from "@/components/app-shell";
 import { ProgressBar } from "@/components/prep/progress-bar";
@@ -7,12 +7,13 @@ import { useAppStore } from "@/lib/app-store";
 import { useAppUi } from "@/components/prep/app-controller";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/goals/$goalId")({
+/* Route metadata is now supplied by index.html.
   component: GoalDetail,
 });
 
-function GoalDetail() {
-  const { goalId } = useParams({ from: "/goals/$goalId" });
+*/
+export default function GoalDetail() {
+  const { goalId } = useParams<{ goalId: string }>();
   const store = useAppStore();
   const ui = useAppUi();
   const goal = store.goals.find((g) => g._id === goalId);
@@ -126,8 +127,7 @@ function GoalDetail() {
                               {topic.concepts.map((c) => (
                                 <li key={c._id}>
                                   <Link
-                                    to="/concept/$conceptId"
-                                    params={{ conceptId: c._id }}
+                                    to={`/concept/${c._id}`}
                                     className="flex items-center justify-between gap-2 text-sm text-ink-muted hover:text-ink py-1"
                                   >
                                     <span className="truncate">{c.title}</span>

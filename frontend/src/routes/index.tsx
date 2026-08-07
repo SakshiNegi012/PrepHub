@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 
 function getStreakDays(progressLogs: Array<{ date: string }>) {
   const uniqueDays = new Set(
@@ -40,7 +40,7 @@ import { useAppStore } from "@/lib/app-store";
 import { useAppUi } from "@/components/prep/app-controller";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "PrepHub — Your study desk" },
@@ -54,13 +54,14 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+*/
 const cardTones = [
   { bg: "bg-peach", dot: "bg-clay", bar: "peach" as const },
   { bg: "bg-sky", dot: "bg-sky-ink", bar: "sky" as const },
   { bg: "bg-sage", dot: "bg-forest", bar: "sage" as const },
 ];
 
-function Home() {
+export default function Home() {
   const store = useAppStore();
   const ui = useAppUi();
 
@@ -143,8 +144,7 @@ function Home() {
               return (
                 <Link
                   key={c._id}
-                  to="/concept/$conceptId"
-                  params={{ conceptId: c._id }}
+                  to={`/concept/${c._id}`}
                   className={cn(
                     "group block rounded-2xl p-5 min-h-[180px] flex-col flex justify-between transition-transform hover:-translate-y-0.5",
                     tone.bg,
@@ -277,8 +277,7 @@ function Home() {
             {activeGoals.map((g) => (
               <li key={g._id}>
                 <Link
-                  to="/goals/$goalId"
-                  params={{ goalId: g._id }}
+                  to={`/goals/${g._id}`}
                   className="block rounded-2xl bg-surface ring-1 ring-hairline p-5 hover:ring-forest/25 transition-shadow"
                 >
                   <div className="flex items-start justify-between gap-3">

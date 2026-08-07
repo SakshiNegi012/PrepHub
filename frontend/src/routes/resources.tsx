@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Star, ExternalLink, Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
@@ -14,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Route = createFileRoute("/resources")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Resources — PrepHub" },
@@ -24,6 +23,7 @@ export const Route = createFileRoute("/resources")({
   component: ResourcesPage,
 });
 
+*/
 const FILTERS: { label: string; value: ResourceType | "all" | "favorite" }[] = [
   { label: "All", value: "all" },
   { label: "Favorites", value: "favorite" },
@@ -35,7 +35,7 @@ const FILTERS: { label: string; value: ResourceType | "all" | "favorite" }[] = [
   { label: "Notes", value: "note" },
 ];
 
-function ResourcesPage() {
+export default function ResourcesPage() {
   const store = useAppStore();
   const ui = useAppUi();
   const [filter, setFilter] = useState<ResourceType | "all" | "favorite">("all");

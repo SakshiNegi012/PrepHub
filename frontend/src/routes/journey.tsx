@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 
 function getStreakDays(progressLogs: Array<{ date: string }>) {
   const uniqueDays = new Set(
@@ -59,7 +59,7 @@ import { useAppUi } from "@/components/prep/app-controller";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-export const Route = createFileRoute("/journey")({
+/* Route metadata is now supplied by index.html.
   head: () => ({
     meta: [
       { title: "Journey — PrepHub" },
@@ -72,6 +72,7 @@ export const Route = createFileRoute("/journey")({
   component: JourneyPage,
 });
 
+*/
 function buildHeatmap(progressLogs: Array<{ date: string; durationMinutes: number }>) {
   const weeks = 12;
   const cells: number[][] = [];
@@ -104,7 +105,7 @@ function buildHeatmap(progressLogs: Array<{ date: string; durationMinutes: numbe
   return cells;
 }
 
-function JourneyPage() {
+export default function JourneyPage() {
   const store = useAppStore();
   const heatmap = buildHeatmap(store.progressLogs);
   const totalCells = heatmap.flat().length;
@@ -203,8 +204,7 @@ function JourneyPage() {
                   return (
                     <li key={g._id}>
                       <Link
-                        to="/goals/$goalId"
-                        params={{ goalId: g._id }}
+                        to={`/goals/${g._id}`}
                         className="flex items-center justify-between gap-3 text-sm hover:text-forest"
                       >
                         <span className="truncate">{g.title}</span>
